@@ -342,7 +342,8 @@ const FormulaEditor = () => {
     if (!isDragging) return;
 
     const currentTime = Date.now();
-    if (currentTime - lastMoveTime < MOVE_THROTTLE) return;
+    const SELECT_THROTTLE = 150;
+    if (currentTime - lastMoveTime < (isSelecting ? SELECT_THROTTLE : MOVE_THROTTLE)) return;
     setLastMoveTime(currentTime);
 
     const joystickRect = e.currentTarget.getBoundingClientRect();
@@ -352,7 +353,7 @@ const FormulaEditor = () => {
     let x = e.clientX - joystickRect.left - centerX;
     let y = e.clientY - joystickRect.top - centerY;
     
-    const radius = joystickRect.width / 4;
+    const radius = joystickRect.width / 3;
     const distance = Math.sqrt(x * x + y * y);
     
     if (distance > radius) {
@@ -363,12 +364,12 @@ const FormulaEditor = () => {
     setJoystickPos({ x, y });
 
     if (isSelecting) {
-      if (distance > radius * 0.3) {
+      if (distance > radius * 0.5) {
         const angle = Math.atan2(y, x) * 180 / Math.PI;
-        if (angle > 0) {
-          formula.expandSelectionLeft();
-        } else {
+        if (angle > -90 && angle < 90) {
           formula.expandSelectionRight();
+        } else {
+          formula.expandSelectionLeft();
         }
         forceUpdate({});
       }
@@ -438,7 +439,7 @@ const FormulaEditor = () => {
         setLongPressTimer(null);
       }
     }
-  }, [isDragging, canMove, lastDirection, formula, longPressTimer, lastMoveTime, isSelecting]);
+  }, [isDragging, lastDirection, formula, longPressTimer, lastMoveTime, isSelecting]);
 
   const handleJoystickEnd = useCallback(() => {
     setIsDragging(false);
