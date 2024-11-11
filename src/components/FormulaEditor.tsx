@@ -162,7 +162,6 @@ class FormulaSystem {
 
   getFormula(isSelecting?: boolean): React.ReactNode {
     const result: React.ReactNode[] = [];
-    let totalOffset = 0;
 
     this.blocks.forEach((block, i) => {
       if (block.type === 'char') {
@@ -204,8 +203,6 @@ class FormulaSystem {
             )}
           </span>
         );
-
-        totalOffset += blockWidth;
       }
     });
 
@@ -467,31 +464,6 @@ const FormulaEditor = () => {
       forceUpdate({});
     }, 500);
     setLongPressTimer(timer);
-  }, [formula]);
-
-  // 修改长按处理
-  useEffect(() => {
-    let pressTimer: NodeJS.Timeout;
-    
-    const startLongPress = () => {
-      pressTimer = setTimeout(() => {
-        setIsSelecting(true);
-        formula.startSelection();
-        forceUpdate({});
-      }, 500);
-    };
-    
-    const endLongPress = () => {
-      if (pressTimer) {
-        clearTimeout(pressTimer);
-      }
-    };
-
-    return () => {
-      if (pressTimer) {
-        clearTimeout(pressTimer);
-      }
-    };
   }, [formula]);
 
   return (
